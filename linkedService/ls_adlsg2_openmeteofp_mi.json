@@ -1,0 +1,11 @@
+{
+	"name": "ls_adlsg2_openmeteofp_mi",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "https://openmeteofp.dfs.core.windows.net/"
+		}
+	}
+}

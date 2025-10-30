@@ -1,0 +1,144 @@
+{
+	"name": "pl_ingest_open_meteo_hist",
+	"properties": {
+		"activities": [
+			{
+				"name": "Iterate through years",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@range(pipeline().parameters.startYear, add(sub(pipeline().parameters.endYear, pipeline().parameters.startYear),1))\n",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Ingest data from Open Meteo API",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "JsonSource",
+									"storeSettings": {
+										"type": "HttpReadSettings",
+										"requestMethod": "GET"
+									},
+									"formatSettings": {
+										"type": "JsonReadSettings"
+									}
+								},
+								"sink": {
+									"type": "JsonSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "JsonWriteSettings"
+									}
+								},
+								"enableStaging": false
+							},
+							"inputs": [
+								{
+									"referenceName": "ds_open_meteo_http",
+									"type": "DatasetReference",
+									"parameters": {
+										"latitude": {
+											"value": "@pipeline().parameters.latitude",
+											"type": "Expression"
+										},
+										"longitude": {
+											"value": "@pipeline().parameters.longitude",
+											"type": "Expression"
+										},
+										"start_date": {
+											"value": "@concat(string(item()), '-01-01')",
+											"type": "Expression"
+										},
+										"end_date": {
+											"value": "@concat(string(item()), '-12-31')",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ds_weather_adlsg2_json",
+									"type": "DatasetReference",
+									"parameters": {
+										"folderPath": {
+											"value": "@concat('raw/', string(item()))",
+											"type": "Expression"
+										},
+										"fileName": {
+											"value": "@concat('weather_', string(item()), '.json')",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "Clean and transform ingested historic data",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Iterate through years",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/WeatherAPI/1.ingest_historic_weather_file"
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_databricks_openmeteo_ws",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"parameters": {
+			"latitude": {
+				"type": "string",
+				"defaultValue": "52.2297"
+			},
+			"longitude": {
+				"type": "string",
+				"defaultValue": "21.0122"
+			},
+			"startYear": {
+				"type": "int",
+				"defaultValue": 2019
+			},
+			"endYear": {
+				"type": "int",
+				"defaultValue": 2024
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-10-30T10:17:46Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

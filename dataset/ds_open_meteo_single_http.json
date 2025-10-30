@@ -1,0 +1,19 @@
+{
+	"name": "ds_open_meteo_single_http",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_weather_http",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": "v1/archive?latitude=52.52&longitude=13.41&hourly=temperature_2m"
+			}
+		},
+		"schema": {}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

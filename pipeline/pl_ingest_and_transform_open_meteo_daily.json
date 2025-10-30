@@ -1,0 +1,161 @@
+{
+	"name": "pl_ingest_and_transform_open_meteo_daily",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy Weather Daily",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.00:10:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 60,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "HttpReadSettings",
+							"requestMethod": "GET"
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_open_meteo_http",
+						"type": "DatasetReference",
+						"parameters": {
+							"latitude": {
+								"value": "@pipeline().parameters.latitude",
+								"type": "Expression"
+							},
+							"longitude": {
+								"value": "@pipeline().parameters.longitude",
+								"type": "Expression"
+							},
+							"start_date": {
+								"value": "@pipeline().parameters.start_date",
+								"type": "Expression"
+							},
+							"end_date": {
+								"value": "@pipeline().parameters.end_date",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_weather_adlsg2_json",
+						"type": "DatasetReference",
+						"parameters": {
+							"folderPath": {
+								"value": "@concat('raw/', formatDateTime(pipeline().parameters.start_date, 'yyyy'), '/', formatDateTime(pipeline().parameters.start_date, 'MM'))\n",
+								"type": "Expression"
+							},
+							"fileName": {
+								"value": "@concat('weather_', formatDateTime(pipeline().parameters.start_date, 'yyyy-MM-dd'), '.json')\n",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Clean and transform ingested daily data",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Copy Weather Daily",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/WeatherAPI/2.ingest_current_weather_file",
+					"baseParameters": {
+						"start_date": {
+							"value": "@formatDateTime(pipeline().parameters.start_date, 'yyyy-MM-dd')",
+							"type": "Expression"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_databricks_openmeteo_ws",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Aggregate tables for presentation",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Clean and transform ingested daily data",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/WeatherAPI/3.transform_data_to_gold_layer"
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_databricks_openmeteo_ws",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"parameters": {
+			"latitude": {
+				"type": "string",
+				"defaultValue": "52.2297"
+			},
+			"longitude": {
+				"type": "string",
+				"defaultValue": "21.0122"
+			},
+			"start_date": {
+				"type": "string"
+			},
+			"end_date": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-10-30T10:17:46Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

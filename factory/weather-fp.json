@@ -1,0 +1,15 @@
+{
+	"name": "weather-fp",
+	"location": "polandcentral",
+	"identity": {
+		"type": "SystemAssigned,UserAssigned",
+		"principalId": "caafe2fd-971f-47a5-a4bb-3032517cd912",
+		"tenantId": "19ce6f8f-6602-48ee-a9f6-846f8f8d2a70",
+		"userAssignedIdentities": {
+			"/subscriptions/15abe40f-239f-4e8c-b60d-c8d077dc424f/resourcegroups/weather-rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/openmeteo-fp": {
+				"clientId": "17d6aee9-8783-4da3-9959-dec562d409f0",
+				"principalId": "36d8ad69-6a1e-4e9b-a8a5-4ce94fa76cc7"
+			}
+		}
+	}
+}

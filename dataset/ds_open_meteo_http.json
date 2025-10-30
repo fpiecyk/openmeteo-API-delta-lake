@@ -1,0 +1,36 @@
+{
+	"name": "ds_open_meteo_http",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_weather_http",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"latitude": {
+				"type": "string"
+			},
+			"longitude": {
+				"type": "string"
+			},
+			"start_date": {
+				"type": "string"
+			},
+			"end_date": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": {
+					"value": "@concat('v1/archive?latitude=', dataset().latitude, '&longitude=', dataset().longitude, '&start_date=', dataset().start_date, '&end_date=', dataset().end_date, '&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max&timezone=Europe%2FWarsaw')\n",
+					"type": "Expression"
+				}
+			}
+		},
+		"schema": {}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
