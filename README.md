@@ -4,6 +4,6 @@
 3) Clean and transform data into Delta files and SQL Managed Tables in Databricks.
 4) Processed data to GOld (Presentation) layer for practical weather trends reports for Data Analysts.
 
-![Monthly_avg_temp](./images/Monthly_avg_temp.png)
-![Monthly_Rainfall_Avg_Temp](./images/Monthly_Rainfall_Avg_Temp.png)
-![Windy_days](./images/Windy_days.png)
+![Monthly_avg_temp](./Images/Monthly_avg_temp.png)
+![Monthly_Rainfall_Avg_Temp](./Images/Monthly_Rainfall_Avg_Temp.png)
+![Windy_days](./Images/Windy_days.png)
